@@ -1,9 +1,17 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
     public Animator movementAnimator;
+    public Camera camera;
 
+    //public GameObject cube;
+    public Material material;
+    public Renderer renderer;
+
+    public bool interacting;
+    public bool isJumping;
     public bool isGrounded;
 
     private Rigidbody rb;
@@ -33,6 +41,9 @@ public class PlayerController : MonoBehaviour
             movementAnimator = gameObject.GetComponent<Animator>();
         }
 
+        renderer = GameObject.FindGameObjectWithTag("Cube").GetComponent<Renderer>();
+        renderer.enabled = true;
+        //cube = GameObject.FindGameObjectWithTag("Cube");
 
         rb = GetComponent<Rigidbody>();
     }
@@ -42,7 +53,7 @@ public class PlayerController : MonoBehaviour
     {
         //Player Control Inputs.
         PlayerControls();
-        GroundCheck();
+        //GroundCheck();
 
 
     }
@@ -64,6 +75,11 @@ public class PlayerController : MonoBehaviour
 
     }
 
+    public static IEnumerator StopJumping(PlayerController pc, float delayTime)
+    {
+        yield return new WaitForSeconds(delayTime);
+        pc.isJumping = false;
+    }
 
 
     void PlayerControls()
@@ -72,11 +88,21 @@ public class PlayerController : MonoBehaviour
         {
             case InputSetup.WASD:
 
-                if (Input.GetKey(KeyCode.W) && isGrounded)
+                if (Input.GetKey(KeyCode.Space))
                 {
-                    movementAnimator.SetBool("isWalking", true);
+                    isJumping = true;
+                    movementAnimator.Play("Jumping");
+                    StartCoroutine(StopJumping(this, 1.883f));
+                }
+
+                else if (Input.GetKey(KeyCode.W))
+                {
                     pMotor.MovePlayer(pData.playerMovementSpeed);
-                    movementAnimator.Play("Walking");
+                    if (!isJumping)
+                    {
+                        movementAnimator.SetBool("isWalking", true);
+                        movementAnimator.Play("Walking");
+                    }
                 }
                 else
                 {
@@ -98,10 +124,23 @@ public class PlayerController : MonoBehaviour
                     pMotor.RotatePlayer(-pData.playerRotationSpeed);
                 }
 
-                if (Input.GetKey(KeyCode.Space))
+                if (Input.GetMouseButtonDown(0))
                 {
-                    isGrounded = false;
-                    movementAnimator.Play("Jumping");
+                    //Create a ray from mouse pointer.
+                    Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+                    RaycastHit hit;
+
+                    //If the Ray hits a collider.
+                    if (Physics.Raycast(ray, out hit, 100))
+                    {
+                        Interactable interactable = hit.collider.GetComponent<Interactable>();
+                        interacting = true;
+                        if (interacting)
+                        {
+                            renderer.sharedMaterial = material;
+                        }
+
+                    }
                 }
 
                 break;
