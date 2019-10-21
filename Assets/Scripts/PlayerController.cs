@@ -1,30 +1,35 @@
 ﻿using System.Collections;
 using UnityEngine;
 
+[RequireComponent(typeof(Animator), (typeof(Camera)))]
 public class PlayerController : MonoBehaviour
 {
-    public Animator movementAnimator;
-    public Camera camera;
+    [SerializeField] private Animator movementAnimator;
+    [SerializeField] private Camera camera;
 
-    //public GameObject cube;
-    public Material material;
-    public Renderer renderer;
+    [Header("Player Motor/Data/Interactable")]
+    [SerializeField] private PlayerMotor pMotor;
+    [SerializeField] private PlayerData pData;
+    private Interactable interactable;
 
-    public bool interacting;
-    public bool isJumping;
-    public bool isGrounded;
+    [Header("Attributes of the Cube")]
+    //[SerializeField] private Material material;
+    //[SerializeField] private Renderer renderer;
 
+    private bool interacting;
+    private bool isJumping;
+    private bool isGrounded;
+
+    public Interactable focus;
     private Rigidbody rb;
 
-    public PlayerMotor pMotor;
-    public PlayerData pData;
-
-    //Create ENUM to change between input type.
+    //Create ENUM to change between input type
     public enum InputSetup { WASD, arrowKeys, playstationController, xboxController };
+    [Header("Chose the input type.")]
     public InputSetup input = InputSetup.WASD;
 
-    //Access Player Motor and Data upon startup.
-    void Start()
+    //Access Player Motor, Data, Animator and Interactable upon startup.
+    void Awake()
     {
         if (pData == null)
         {
@@ -41,44 +46,68 @@ public class PlayerController : MonoBehaviour
             movementAnimator = gameObject.GetComponent<Animator>();
         }
 
-        renderer = GameObject.FindGameObjectWithTag("Cube").GetComponent<Renderer>();
-        renderer.enabled = true;
-        //cube = GameObject.FindGameObjectWithTag("Cube");
+        if (interactable == null)
+        {
+            interactable = gameObject.GetComponent<Interactable>();
 
+        }
+
+        //Access Render component of Cube for interaction.
+        //renderer = GameObject.FindGameObjectWithTag("Cube").GetComponent<Renderer>();
+        //renderer.enabled = true;
+        //Access Rigidbody component.
         rb = GetComponent<Rigidbody>();
     }
 
     //Update control inputs per frame.
     void Update()
     {
-        //Player Control Inputs.
         PlayerControls();
-        //GroundCheck();
-
-
     }
 
-    void GroundCheck()
-    {
-        RaycastHit hit;
-        float distance = 1.1f;
-        Vector3 direction = new Vector3(0, -1);
+    //void GroundCheck()
+    //{
+    //    RaycastHit hit;
+    //    float distance = 1.1f;
+    //    Vector3 direction = new Vector3(0, -1);
 
-        if (Physics.Raycast(transform.position, direction, out hit, distance))
-        {
-            isGrounded = true;
-        }
-        else
-        {
-            isGrounded = false;
-        }
+    //    if (Physics.Raycast(transform.position, direction, out hit, distance))
+    //    {
+    //        isGrounded = true;
+    //    }
+    //    else
+    //    {
+    //        isGrounded = false;
+    //    }
 
-    }
+    //}
 
     public static IEnumerator StopJumping(PlayerController pc, float delayTime)
     {
         yield return new WaitForSeconds(delayTime);
         pc.isJumping = false;
+    }
+
+    void SetFocus(Interactable newFocus)
+    {
+        if (newFocus != focus)
+        {
+            if (focus != null)
+            {
+                focus.UnFocused();
+            }
+            focus = newFocus;
+        }
+        newFocus.Focused(transform);
+    }
+
+    void RemoveFocus()
+    {
+        if (focus != null)
+        {
+            focus.UnFocused();
+        }
+        focus = null;
     }
 
 
@@ -124,6 +153,21 @@ public class PlayerController : MonoBehaviour
                     pMotor.RotatePlayer(-pData.playerRotationSpeed);
                 }
 
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    Debug.Log("Equipping Weapon.");
+                    movementAnimator.SetBool("isEquipping", true);
+                    movementAnimator.Play("Unarmed Equip Over Shoulder");
+                }
+
+                if (Input.GetKeyDown(KeyCode.Alpha1))
+                {
+                    Debug.Log("Attacking");
+                    movementAnimator.SetBool("isAttacking", true);
+                    movementAnimator.Play("Stable Sword Outward Slash" +
+                                          "");
+                }
+
                 if (Input.GetMouseButtonDown(0))
                 {
                     //Create a ray from mouse pointer.
@@ -133,13 +177,25 @@ public class PlayerController : MonoBehaviour
                     //If the Ray hits a collider.
                     if (Physics.Raycast(ray, out hit, 100))
                     {
-                        Interactable interactable = hit.collider.GetComponent<Interactable>();
-                        interacting = true;
-                        if (interacting)
-                        {
-                            renderer.sharedMaterial = material;
-                        }
+                        RemoveFocus();
+                    }
+                }
+                //Focus on interactable object.
+                if (Input.GetMouseButtonDown(1))
+                {
+                    //Create a ray from mouse pointer.
+                    Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+                    RaycastHit hit;
 
+                    //If the Ray hits a collider.
+                    if (Physics.Raycast(ray, out hit, 100))
+                    {
+                        Interactable interactable = hit.collider.GetComponent<Interactable>();
+                        if (interactable != null)
+                        {
+                            SetFocus(interactable);
+                            interactable.Interact();
+                        }
                     }
                 }
 

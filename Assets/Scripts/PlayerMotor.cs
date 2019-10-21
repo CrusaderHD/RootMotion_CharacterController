@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 
+[RequireComponent(typeof(CharacterController))]
 public class PlayerMotor : MonoBehaviour
 {
     public CharacterController characterController;  //Holds the character controller component.
