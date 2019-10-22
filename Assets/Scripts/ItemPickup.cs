@@ -15,7 +15,14 @@ public class ItemPickup : Interactable
     {
         Debug.Log("Picking Up: " + item.itemName);
         //Add Item to Inventory and remove from scene.
-        Destroy(gameObject);
+        bool wasPickedUp = Inventory.instance.Add(item);
+
+        //If item was able to be picked up and added to inventory, destroy Game Object from scene.
+        if (wasPickedUp)
+        {
+            Destroy(gameObject);
+        }
+
     }
 
 
