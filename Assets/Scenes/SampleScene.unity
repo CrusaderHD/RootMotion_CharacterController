@@ -3764,7 +3764,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d76005b1bfd421d49bc7825a14930625, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inventory: {fileID: 0}
+  playerUI: {fileID: 474463927}
+  itemsParent: {fileID: 546542239}
 --- !u!224 &1197216382 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5624524727445962507, guid: 1b88a40c7c711114ea85c4ab41510d5c,
