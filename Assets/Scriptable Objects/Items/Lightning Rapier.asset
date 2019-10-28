@@ -15,6 +15,10 @@ MonoBehaviour:
   itemName: Lightning Rapier
   icon: {fileID: 21300000, guid: dbd0e81ba08974441932c1b53abce311, type: 3}
   isDefaultItem: 0
+  itemPrefab: {fileID: 8844473688200982922, guid: 39c9d6b8187b31245a154a03b9d588c1,
+    type: 3}
   equipmentSlot: 3
+  weaponPrefab: {fileID: 8844473688200982922, guid: 39c9d6b8187b31245a154a03b9d588c1,
+    type: 3}
   armorModifier: 1
   damageModifier: 15

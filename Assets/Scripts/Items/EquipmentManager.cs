@@ -16,6 +16,8 @@ public class EquipmentManager : MonoBehaviour
 
     private Equipment[] currentEquipment;
 
+    public Transform itemLocation;
+
     public delegate void OnEquipmentChanged(Equipment newItem, Equipment oldItem);
 
     public OnEquipmentChanged onEquipmentChanged;
@@ -28,6 +30,7 @@ public class EquipmentManager : MonoBehaviour
         //Initialize the Equipment
         int numEquipmentSlots = System.Enum.GetNames(typeof(EquipmentSlot)).Length;
         currentEquipment = new Equipment[numEquipmentSlots];
+
     }
 
 
@@ -52,6 +55,11 @@ public class EquipmentManager : MonoBehaviour
         }
 
         currentEquipment[slotIndex] = newItem;
+        GameObject go = (GameObject) Instantiate(newItem.weaponPrefab, itemLocation.position, Quaternion.identity) as GameObject;
+        go.transform.parent = itemLocation;
+        Debug.Log("We are Equipping: " + newItem);
+
+
     }
 
     public void UnequipItem(int slotIndex)

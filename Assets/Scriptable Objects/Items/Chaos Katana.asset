@@ -15,6 +15,10 @@ MonoBehaviour:
   itemName: Chaos Katana
   icon: {fileID: 21300000, guid: f594bf2df7f5c264f96b77d4c5537436, type: 3}
   isDefaultItem: 0
+  itemPrefab: {fileID: 9199775272696078189, guid: a68ac757758ceb547930f5ecaf7c512f,
+    type: 3}
   equipmentSlot: 3
+  weaponPrefab: {fileID: 9199775272696078189, guid: a68ac757758ceb547930f5ecaf7c512f,
+    type: 3}
   armorModifier: 1
   damageModifier: 5

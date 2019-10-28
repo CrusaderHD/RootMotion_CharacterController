@@ -7,6 +7,8 @@ public class Equipment : Item
 {
     public EquipmentSlot equipmentSlot;
 
+    public GameObject weaponPrefab;
+
     public int armorModifier;
     public int damageModifier;
 

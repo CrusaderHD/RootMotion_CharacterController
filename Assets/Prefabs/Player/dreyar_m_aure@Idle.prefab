@@ -498,7 +498,7 @@ MonoBehaviour:
   camera: {fileID: 7949486240094288207}
   pMotor: {fileID: 0}
   pData: {fileID: 0}
-  interactable: {fileID: 0}
+  focus: {fileID: 0}
   input: 0
 --- !u!114 &7949486240005947994
 MonoBehaviour:
@@ -512,7 +512,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 494843587b7efc74fa842b7d8d6f7233, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  healthSliderTextValue: {fileID: 332894313884764506, guid: 170921a749995e7489a5a99d3bc1e2e3,
+    type: 3}
   playerHealthBar: {fileID: 0}
+  playerStaminaBar: {fileID: 0}
+  playerManaBar: {fileID: 0}
 --- !u!1 &2173329228969235301
 GameObject:
   m_ObjectHideFlags: 0
@@ -2104,7 +2108,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7949486238939847710}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.78, y: -0.19, z: 0.76}
+  m_LocalPosition: {x: 0.86, y: -0.24, z: 1.01}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4403711075956082316}
@@ -2195,13 +2199,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7949486240094288208}
-  m_LocalRotation: {x: 0.1596767, y: -0, z: -0, w: 0.9871694}
-  m_LocalPosition: {x: -0.63, y: 19.67, z: -21.58}
+  m_LocalRotation: {x: 0.18213798, y: -0, z: -0, w: 0.983273}
+  m_LocalPosition: {x: -0.63, y: 23.43, z: -12.92}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 3109888731361706479}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 18.376001, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 20.989, y: 0, z: 0}
 --- !u!20 &7949486240094288207
 Camera:
   m_ObjectHideFlags: 0
