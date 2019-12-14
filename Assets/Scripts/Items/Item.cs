@@ -6,8 +6,8 @@ public class Item : ScriptableObject
 
     public string itemName = "New Item"; //Name of Item
     public Sprite icon = null;           //Image of Item
-    public bool isDefaultItem = false;
-    public GameObject itemPrefab;
+    public bool isDefaultItem = false;  //Is this a default item the player starts with.
+    public GameObject itemPrefab;       //Prefab of scripted item.
 
 
     public virtual void Use()

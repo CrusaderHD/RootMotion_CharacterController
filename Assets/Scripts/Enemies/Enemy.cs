@@ -1,13 +1,26 @@
-﻿using System.Security.Cryptography;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class Enemy : MonoBehaviour
+/*Handles interaction with the enemy*/
+public class Enemy : Interactable
 {
-    void OnTriggerEnter(Collider collider)
+    PlayerManager playerManager;
+    PlayerStats myStats;
+    private void Start()
     {
-        if (collider.CompareTag("Weapon"))
+        playerManager = PlayerManager.instance;
+
+    }
+
+    public override void Interact()
+    {
+        base.Interact();
+        //Attack Enemy
+        CharacterCombat playerCombat = playerManager.playerPrefab.GetComponent<CharacterCombat>();
+        if (playerCombat != null)
         {
-            Destroy(this.gameObject);
+            playerCombat.Attack(myStats);
         }
     }
+
+
 }

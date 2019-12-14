@@ -4,8 +4,11 @@ using UnityEngine.UI;
 public class PlayerHealthController : MonoBehaviour
 {
 
+    [Header("Player Health Values")]
     public float playerMaxHealth;
     public float playerCurrentHealth;
+
+    [Header("Text Fields for Slider Text")]
     public Text playerHealthText;
 
     public Slider playerHealthBar;
@@ -17,8 +20,10 @@ public class PlayerHealthController : MonoBehaviour
     {
         //playerHealthText = GetComponent<Text>();
         playerMaxHealth = 100f;
+
         //Reset Player Health to full when loading game.
         playerCurrentHealth = playerMaxHealth;
+
         //playerHealthBar.value = playerCurrentHealth;
         playerHealthBar.maxValue = playerCurrentHealth;
         playerHealthBar.value = playerHealthBar.maxValue;
@@ -28,6 +33,7 @@ public class PlayerHealthController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //If a key gets pressed, deal damage to player.
         ShowHealthValue();
         if (Input.GetKeyDown(KeyCode.X))
         {
@@ -35,6 +41,8 @@ public class PlayerHealthController : MonoBehaviour
         }
     }
 
+    //Deals damage to player to show health loss. 
+    //TODO: Have player be dealt damage other ways.
     void DealDamage(float damage)
     {
         playerCurrentHealth -= damage;
@@ -45,18 +53,14 @@ public class PlayerHealthController : MonoBehaviour
         }
     }
 
-    //Calculate Health
-    //float CalculateHealth()
-    //{
-        //return playerCurrentHealth / playerMaxHealth;
-    //}
-
+    //If players health reaches 0. Player dies. 
     void PlayerDie()
     {
         playerCurrentHealth = 0;
         Debug.Log("Welp, you died.");
     }
 
+    //Shows health value as text format via Slider. 
     void ShowHealthValue()
     {
         string p_HealthValue = playerHealthBar.value.ToString();

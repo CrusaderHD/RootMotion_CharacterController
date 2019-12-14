@@ -21,4 +21,4 @@ MonoBehaviour:
   weaponPrefab: {fileID: 9199775272696078189, guid: a68ac757758ceb547930f5ecaf7c512f,
     type: 3}
   armorModifier: 1
-  damageModifier: 5
+  damageModifier: 2

@@ -1,62 +1,58 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 
-[RequireComponent(typeof(Animator), (typeof(Camera)))]
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private Animator movementAnimator;
-    [SerializeField] private Camera camera;
 
+    //Player Movement Attributes
     [Header("Player Motor/Data/Interactable")]
-    [SerializeField] private PlayerMotor pMotor;
     [SerializeField] private PlayerData pData;
+    [SerializeField] private CharacterController charController;
+    [SerializeField] private Camera camera;
+    Vector3 moveDirection = Vector3.zero;
+    Animator animator;
+    float rotation = 0.0f;
+    public bool isPlayerWalking;
+
+    //public AudioSource playerWalking;
+    //public AudioSource playerWalkingSource;
+    //public AudioClip playerWalkingClip;
+
+    //Vector to move with Mouse.
+    private Vector2 mouseDirection;
+
+    //Interactables
     private Interactable interactable;
-
-    [Header("Attributes of the Cube")]
-    //[SerializeField] private Material material;
-    //[SerializeField] private Renderer renderer;
-
     private bool interacting;
-    private bool isJumping;
-    private bool isGrounded;
-
     public Interactable focus;
+    private CharacterCombat playerAttack;
+    EnemyStats enemyStats;
+
+    //Attain the RigidBody
     private Rigidbody rb;
 
     //Create ENUM to change between input type
     public enum InputSetup { WASD, arrowKeys, playstationController, xboxController };
-    [Header("Chose the input type.")]
+    [Header("Choose the input type.")]
     public InputSetup input = InputSetup.WASD;
 
-    //Access Player Motor, Data, Animator and Interactable upon startup.
+    //Access Player Data, Animator and Interactable upon startup.
     void Awake()
     {
+        //Add needed components to player.
         if (pData == null)
         {
             pData = gameObject.GetComponent<PlayerData>();
         }
 
-        if (pMotor == null)
-        {
-            pMotor = gameObject.GetComponent<PlayerMotor>();
-        }
-
-        if (movementAnimator == null)
-        {
-            movementAnimator = gameObject.GetComponent<Animator>();
-        }
-
         if (interactable == null)
         {
             interactable = gameObject.GetComponent<Interactable>();
-
         }
-
-        //Access Render component of Cube for interaction.
-        //renderer = GameObject.FindGameObjectWithTag("Cube").GetComponent<Renderer>();
-        //renderer.enabled = true;
-        //Access Rigidbody component.
         rb = GetComponent<Rigidbody>();
+        animator = GetComponent<Animator>();
+        charController = GetComponent<CharacterController>();
     }
 
     //Update control inputs per frame.
@@ -65,28 +61,7 @@ public class PlayerController : MonoBehaviour
         PlayerControls();
     }
 
-    //void GroundCheck()
-    //{
-    //    RaycastHit hit;
-    //    float distance = 1.1f;
-    //    Vector3 direction = new Vector3(0, -1);
 
-    //    if (Physics.Raycast(transform.position, direction, out hit, distance))
-    //    {
-    //        isGrounded = true;
-    //    }
-    //    else
-    //    {
-    //        isGrounded = false;
-    //    }
-
-    //}
-
-    public static IEnumerator StopJumping(PlayerController pc, float delayTime)
-    {
-        yield return new WaitForSeconds(delayTime);
-        pc.isJumping = false;
-    }
 
     void SetFocus(Interactable newFocus)
     {
@@ -110,6 +85,37 @@ public class PlayerController : MonoBehaviour
         focus = null;
     }
 
+    IEnumerator AttackRoutine()
+    {
+        Debug.Log("Attacking");
+        animator.SetBool("isAttacking", true);
+        animator.SetInteger("Condition", 2);
+        yield return new WaitForSeconds(1);
+        animator.SetInteger("Condition", 0);
+        animator.SetBool("isAttacking", false);
+    }
+
+    void PlayerAttack()
+    {
+        StartCoroutine(AttackRoutine());
+        PlayerAttackAudio();
+    }
+
+    void PlayerWalkAudio()
+    {
+        FindObjectOfType<AudioSource>().loop = true;
+        FindObjectOfType<AudioManager>().PlayAudio("PlayerWalk");
+    }
+
+    void PlayerIdleAudio()
+    {
+        FindObjectOfType<AudioSource>().loop = false;
+    }
+
+    void PlayerAttackAudio()
+    {
+        FindObjectOfType<AudioManager>().PlayAudio("PlayerAttack");
+    }
 
     void PlayerControls()
     {
@@ -117,56 +123,85 @@ public class PlayerController : MonoBehaviour
         {
             case InputSetup.WASD:
 
-                if (Input.GetKey(KeyCode.Space))
+                //Move Forward and Turn
+                if (Input.GetKey(KeyCode.W))
                 {
-                    isJumping = true;
-                    movementAnimator.Play("Jumping");
-                    StartCoroutine(StopJumping(this, 1.883f));
-                }
-
-                else if (Input.GetKey(KeyCode.W))
-                {
-                    pMotor.MovePlayer(pData.playerMovementSpeed);
-                    if (!isJumping)
+                    //FindObjectOfType<AudioManager>().loopAudio = true;
+                    
+                    isPlayerWalking = true;
+                    if (Input.GetKeyDown(KeyCode.W))
                     {
-                        movementAnimator.SetBool("isWalking", true);
-                        movementAnimator.Play("Walking");
+                        if (isPlayerWalking)
+                        {
+                            PlayerWalkAudio();
+                        }
+                        
                     }
+                   
+                    if (animator.GetBool("isAttacking") == true)
+                    {
+                        return;
+                    }
+                    else if (animator.GetBool("isAttacking") == false)
+                    {
+                        
+                        animator.SetInteger("Condition", 1);
+                        moveDirection = new Vector3(0, 0, .3f);
+                        moveDirection *= pData.playerMovementSpeed;
+                        moveDirection = transform.TransformDirection(moveDirection);
+                    }
+                    
                 }
-                else
+                if (Input.GetKeyUp(KeyCode.W))
                 {
-                    movementAnimator.SetBool("isWalking", false);
+                    isPlayerWalking = false;
+                    PlayerIdleAudio();
+                    //FindObjectOfType<AudioManager>().loopAudio = false;
+                    //FindObjectOfType<AudioSource>().loop = false;
+                    //FindObjectOfType<AudioManager>().PlayAudio("PlayerIdle");
+                    //animator.SetBool("Running", false);
+                    animator.SetInteger("Condition", 0);
+                    moveDirection = new Vector3(0, 0, 0);
                 }
 
+                rotation += Input.GetAxis("Horizontal") * pData.playerRotationSpeed * Time.deltaTime;
+                transform.eulerAngles = new Vector3(0, rotation, 0);
+                moveDirection.y -= pData.playerGravity * Time.deltaTime;
+                charController.Move(moveDirection * Time.deltaTime);
+                
+
+
+
+                //Move Backward and Turn
                 if (Input.GetKey(KeyCode.S))
                 {
-                    pMotor.MovePlayer(-pData.playerMovementSpeed);
-                    movementAnimator.Play("Walking");
-                    movementAnimator.SetBool("isWalking", true);
+                    //animator.SetBool("Running", true);
+                    animator.SetInteger("Condition", 1);
+                    moveDirection = new Vector3(0, 0, -.3f);
+                    moveDirection *= pData.playerMovementSpeed;
+                    moveDirection = transform.TransformDirection(moveDirection);
                 }
-                if (Input.GetKey(KeyCode.D))
+
+                if (Input.GetKeyUp(KeyCode.S))
                 {
-                    pMotor.RotatePlayer(pData.playerRotationSpeed);
+                    //animator.SetBool("Running", false);
+                    animator.SetInteger("Condition", 0);
+                    moveDirection = new Vector3(0, 0, 0);
                 }
-                if (Input.GetKey(KeyCode.A))
+                moveDirection.y -= pData.playerGravity * Time.deltaTime;
+                charController.Move(moveDirection * Time.deltaTime);
+
+                if (Input.GetKeyDown(KeyCode.Alpha1))
                 {
-                    pMotor.RotatePlayer(-pData.playerRotationSpeed);
+                    
+                    
                 }
 
                 if (Input.GetKeyDown(KeyCode.E))
                 {
                     Debug.Log("Equipping Weapon.");
-                    movementAnimator.SetBool("isEquipping", true);
-                    movementAnimator.Play("Unarmed Equip Over Shoulder");
                 }
 
-                if (Input.GetKeyDown(KeyCode.Alpha1))
-                {
-                    Debug.Log("Attacking");
-                    movementAnimator.SetBool("isAttacking", true);
-                    movementAnimator.Play("Stable Sword Outward Slash" +
-                                          "");
-                }
 
                 if (Input.GetMouseButtonDown(0))
                 {
@@ -197,33 +232,21 @@ public class PlayerController : MonoBehaviour
                             interactable.Interact();
                         }
                     }
+
+                    if (animator.GetBool("isRunning") == true)
+                    {
+                        animator.SetBool("isRunning", false);
+                        animator.SetInteger("Condition", 0);
+                    }
+                    if (animator.GetBool("isRunning") == false)
+                    {
+                        PlayerAttack();
+                    }
                 }
 
                 break;
         }
 
-        switch (input)
-        {
-            case InputSetup.arrowKeys:
-
-                if (Input.GetKey(KeyCode.UpArrow))
-                {
-                    pMotor.MovePlayer(pData.playerMovementSpeed);
-                }
-                if (Input.GetKey(KeyCode.DownArrow))
-                {
-                    pMotor.MovePlayer(-pData.playerMovementSpeed);
-                }
-                if (Input.GetKey(KeyCode.RightArrow))
-                {
-                    pMotor.RotatePlayer(pData.playerRotationSpeed);
-                }
-                if (Input.GetKey(KeyCode.LeftArrow))
-                {
-                    pMotor.RotatePlayer(-pData.playerRotationSpeed);
-                }
-                break;
-        }
     }
 
 }
